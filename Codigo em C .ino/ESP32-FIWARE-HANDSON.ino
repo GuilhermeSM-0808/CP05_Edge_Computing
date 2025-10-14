@@ -14,19 +14,23 @@ AZURE FIWARE - docker
 
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <DHT.h>
 
 // Configurações - variáveis editáveis
-const char* default_SSID = "GuiGuiGui"; // Nome da rede Wi-Fi
-const char* default_PASSWORD = "iuGiuGiuG"; // Senha da rede Wi-Fi
-const char* default_BROKER_MQTT = "###.###.###.##"; // IP do Broker MQTT
+const char* default_SSID = "Wokwi-GUEST"; // Nome da rede Wi-Fi
+const char* default_PASSWORD = ""; // Senha da rede Wi-Fi
+const char* default_BROKER_MQTT = ""; // IP do Broker MQTT
 const int default_BROKER_PORT = 1883; // Porta do Broker MQTT
-const char* default_TOPICO_SUBSCRIBE = "/TEF/lamp001/cmd"; // Tópico MQTT de escuta
-const char* default_TOPICO_PUBLISH_1 = "/TEF/lamp001/attrs"; // Tópico MQTT de envio de informações para Broker
-const char* default_TOPICO_PUBLISH_2 = "/TEF/lamp001/attrs/l"; // Tópico MQTT de envio de informações para Broker
+const char* default_TOPICO_SUBSCRIBE = "/TEF/SensorVinheria001/cmd"; // Tópico MQTT de escuta
+const char* default_TOPICO_PUBLISH_1 = "/TEF/SensorVinheria001/attrs"; // Tópico MQTT de envio de informações para Broker
+const char* default_TOPICO_PUBLISH_2 = "/TEF/SensorVinheria001/attrs/l"; // Tópico MQTT de envio de informações para Broker
+const char* default_TOPICO_PUBLISH_3 = "/TEF/SensorVinheria001/attrs/t"; // Tópico MQTT de envio de informações para Broker
+const char* default_TOPICO_PUBLISH_4 = "/TEF/SensorVinheria001/attrs/u"; // Tópico MQTT de envio de informações para Broker
+const char* default_TOPICO_PUBLISH_5 = "/TEF/SensorVinheria001/attrs/a"; // Tópico MQTT de envio de informações para Broker
 const char* default_ID_MQTT = "fiware_001"; // ID MQTT
 const int default_D4 = 2; // Pino do LED onboard
 // Declaração da variável para o prefixo do tópico
-const char* topicPrefix = "lamp001";
+const char* topicPrefix = "SensorVinheria001";
 
 // Variáveis para configurações editáveis
 char* SSID = const_cast<char*>(default_SSID);
@@ -36,8 +40,23 @@ int BROKER_PORT = default_BROKER_PORT;
 char* TOPICO_SUBSCRIBE = const_cast<char*>(default_TOPICO_SUBSCRIBE);
 char* TOPICO_PUBLISH_1 = const_cast<char*>(default_TOPICO_PUBLISH_1);
 char* TOPICO_PUBLISH_2 = const_cast<char*>(default_TOPICO_PUBLISH_2);
+char* TOPICO_PUBLISH_3 = const_cast<char*>(default_TOPICO_PUBLISH_3);
+char* TOPICO_PUBLISH_4 = const_cast<char*>(default_TOPICO_PUBLISH_4);
+char* TOPICO_PUBLISH_5 = const_cast<char*>(default_TOPICO_PUBLISH_5);
 char* ID_MQTT = const_cast<char*>(default_ID_MQTT);
 int D4 = default_D4;
+const int echo    = 21; 
+const int trigger = 19; 
+float dist = 0;
+
+//CONFIG DHT
+  //Pino conectado ao pino de dados do sensor
+    #define DHTPIN 5
+  //Utilize a linha de acordo com o modelo do sensor
+    //#define DHTTYPE DHT11   // Sensor DHT11
+    #define DHTTYPE DHT22   // Sensor DHT 22  (AM2302)
+  //Definicoes do sensor : pino, tipo
+  DHT dht(DHTPIN, DHTTYPE);
 
 WiFiClient espClient;
 PubSubClient MQTT(espClient);
@@ -74,6 +93,7 @@ void loop() {
     VerificaConexoesWiFIEMQTT();
     EnviaEstadoOutputMQTT();
     handleLuminosity();
+    SensorAlagamento();
     MQTT.loop();
 }
 
@@ -82,7 +102,7 @@ void reconectWiFi() {
         return;
     WiFi.begin(SSID, PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
+        delay(100);
         Serial.print(".");
     }
     Serial.println();
@@ -126,6 +146,21 @@ void VerificaConexoesWiFIEMQTT() {
     reconectWiFi();
 }
 
+void SensorAlagamento(){
+  digitalWrite(trigger,LOW);
+  delayMicroseconds(5);        
+  digitalWrite(trigger,HIGH);  
+  delayMicroseconds(10);      
+  digitalWrite(trigger,LOW); 
+  
+  dist=pulseIn(echo,HIGH);      
+  dist = dist/58;                  // Convertendo para centimetros
+  Serial.print ("Distancia = ");
+  Serial.print (dist);         
+  Serial.print (" cm");
+
+}
+
 void EnviaEstadoOutputMQTT() {
     if (EstadoSaida == '1') {
         MQTT.publish(TOPICO_PUBLISH_1, "s|on");
@@ -142,6 +177,8 @@ void EnviaEstadoOutputMQTT() {
 
 void InitOutput() {
     pinMode(D4, OUTPUT);
+    pinMode(trigger,OUTPUT);
+    pinMode(echo,INPUT);
     digitalWrite(D4, HIGH);
     boolean toggle = false;
 
