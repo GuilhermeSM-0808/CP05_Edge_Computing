@@ -17,9 +17,9 @@ AZURE FIWARE - docker
 #include <DHT.h>
 
 // Configurações - variáveis editáveis
-const char* default_SSID = "Wokwi-GUEST"; // Nome da rede Wi-Fi
-const char* default_PASSWORD = ""; // Senha da rede Wi-Fi
-const char* default_BROKER_MQTT = ""; // IP do Broker MQTT
+const char* default_SSID = "GuiGuiGui"; // Nome da rede Wi-Fi
+const char* default_PASSWORD = "iuGiuGiuG"; // Senha da rede Wi-Fi
+const char* default_BROKER_MQTT = "###.###.###.##"; // IP do Broker MQTT
 const int default_BROKER_PORT = 1883; // Porta do Broker MQTT
 const char* default_TOPICO_SUBSCRIBE = "/TEF/SensorVinheria001/cmd"; // Tópico MQTT de escuta
 const char* default_TOPICO_PUBLISH_1 = "/TEF/SensorVinheria001/attrs"; // Tópico MQTT de envio de informações para Broker
@@ -50,13 +50,9 @@ const int trigger = 19;
 float dist = 0;
 
 //CONFIG DHT
-  //Pino conectado ao pino de dados do sensor
-    #define DHTPIN 5
-  //Utilize a linha de acordo com o modelo do sensor
-    //#define DHTTYPE DHT11   // Sensor DHT11
-    #define DHTTYPE DHT22   // Sensor DHT 22  (AM2302)
-  //Definicoes do sensor : pino, tipo
-  DHT dht(DHTPIN, DHTTYPE);
+    #define DHTPIN 18
+    #define DHTTYPE DHT11   
+    DHT dht(DHTPIN, DHTTYPE);
 
 WiFiClient espClient;
 PubSubClient MQTT(espClient);
@@ -93,8 +89,10 @@ void loop() {
     VerificaConexoesWiFIEMQTT();
     EnviaEstadoOutputMQTT();
     handleLuminosity();
+    handleDHT();
     SensorAlagamento();
     MQTT.loop();
+    delay(2000);
 }
 
 void reconectWiFi() {
@@ -146,6 +144,17 @@ void VerificaConexoesWiFIEMQTT() {
     reconectWiFi();
 }
 
+void AcionarBomba(float nivel) {
+  if (nivel > 175) {
+    digitalWrite(2, HIGH);
+    EstadoSaida = '1';
+  }
+  else{
+    digitalWrite(2, LOW);
+    EstadoSaida = '0';
+  }
+}
+
 void SensorAlagamento(){
   digitalWrite(trigger,LOW);
   delayMicroseconds(5);        
@@ -155,24 +164,32 @@ void SensorAlagamento(){
   
   dist=pulseIn(echo,HIGH);      
   dist = dist/58;                  // Convertendo para centimetros
-  Serial.print ("Distancia = ");
-  Serial.print (dist);         
-  Serial.print (" cm");
+
+  dist = map(dist, 0, 200, 200, 0);
+  AcionarBomba(dist);
+
+  String m_agua = String(dist);
+  Serial.print("Nivel d'agua: ");
+  Serial.print(m_agua.c_str());
+  Serial.println("cm");
+  MQTT.publish(TOPICO_PUBLISH_5, m_agua.c_str());
 
 }
 
 void EnviaEstadoOutputMQTT() {
     if (EstadoSaida == '1') {
+        digitalWrite(2, HIGH);        
         MQTT.publish(TOPICO_PUBLISH_1, "s|on");
         Serial.println("- Led Ligado");
     }
 
     if (EstadoSaida == '0') {
+        digitalWrite(2, LOW);
         MQTT.publish(TOPICO_PUBLISH_1, "s|off");
         Serial.println("- Led Desligado");
     }
     Serial.println("- Estado do LED onboard enviado ao broker!");
-    delay(1000);
+    
 }
 
 void InitOutput() {
@@ -205,11 +222,39 @@ void reconnectMQTT() {
 }
 
 void handleLuminosity() {
-    const int potPin = 34;
-    int sensorValue = analogRead(potPin);
-    int luminosity = map(sensorValue, 0, 4095, 0, 100);
+    const int LuxPin = 34;
+    int sensorValue = analogRead(LuxPin);
+    //Serial.println("Valor do Sensor de lux: " + String(sensorValue));
+    if (isnan(sensorValue)){
+      Serial.print("Falha ao ler dados do sensor de luz.");
+    }
+    int luminosity = map(sensorValue, 0, 4095, 0, 100); // 100 significa escuridao, zero = muita luz
     String mensagem = String(luminosity);
     Serial.print("Valor da luminosidade: ");
     Serial.println(mensagem.c_str());
     MQTT.publish(TOPICO_PUBLISH_2, mensagem.c_str());
+}
+
+void handleDHT() {
+  //Leitura do sensor de umidade
+    float u = dht.readHumidity();
+  //Leitura do sensor de temperatura (Celsius)
+    float t = dht.readTemperature();
+
+    if (isnan(u) || isnan(t))
+    {
+      Serial.println("Falha ao ler dados do sensor DHT !!!");
+      return;
+    }
+
+    String m_temp = String(t);
+    String m_umi = String(u);
+
+    Serial.print("Valor da temperatura: ");
+    Serial.println(m_temp.c_str());
+    Serial.print("Valor da umidade: ");
+    Serial.println(m_umi.c_str());
+
+    MQTT.publish(TOPICO_PUBLISH_3, m_temp.c_str());
+    MQTT.publish(TOPICO_PUBLISH_4, m_umi.c_str());
 }
