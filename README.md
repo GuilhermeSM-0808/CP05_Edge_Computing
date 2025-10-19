@@ -28,7 +28,9 @@ Video demonstrando o funcionamento do ESP32 enviando dados de diversos sensores 
 
 E com a confirmação do funcionamento do servidor e FIWARE coma utilização do PostMan.
 
-https://youtu.be/6yw99pNxt34?si=EcjmgeKY3tj_qCBy
+# https://youtu.be/5ZKRioOt8IU
+[![Video demonstrando o funcionamento do dispositivo](src/img/CP05-Dispositivo-YT-Thumbnail.jpg)](https://youtu.be/5ZKRioOt8IU)
+
 
 ## Dispositivo
 
