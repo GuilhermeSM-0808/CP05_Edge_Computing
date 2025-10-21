@@ -6,7 +6,7 @@ Participantes:
 ### - Guilherme Satler Macedo   || RM 563330
 ### - Laura Sousa Barreto       || RM 561965
 ### - Matheus Freitas Vieira    || RM 566198
-### - Natalia Camargo de Souza  || RM 565769
+### - Natália Camargo de Souza  || RM 565769
 --------------------------------------------
  
 AZURE FIWARE - docker
