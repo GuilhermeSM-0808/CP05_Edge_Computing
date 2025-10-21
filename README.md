@@ -11,7 +11,7 @@ CP05 de Edge Computing - Monitoramente de uma Adega de uma Vinheria Teorica. Mon
 
 - Matheus Freitas Vieira      - RM 566198
 
-- Natalia Camargo de Souza    - RM 565769
+- Natália Camargo de Souza    - RM 565769
 
 ---
 
@@ -54,6 +54,16 @@ https://wokwi.com/projects/445188474601375745
 ### Screenshot da página do VM no Azure
 
 ![Screenshot da página do Azure exibindo as configurações da maquina virtual](src/img/CP05-Azure.png)
+
+![Screenshot da página do Azure exibindo as configurações de rede da maquina virtual](src/img/Cp05-Azure-DefiniçõesDeRede.png)
+
+##### Screenshot da Instalação do FIWARE exibido pelo comando History
+
+![History parte 1](src/img/CP05-Azure_HistoryScreenshot.png)
+
+![History parte 2](src/img/CP05-Azure_HistoryScreenshot2.png)
+
+![History parte 3](src/img/CP05-Azure_HistoryScreenshot3.png)
 
 ---
 
