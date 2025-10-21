@@ -6,7 +6,7 @@ Participantes:
 ### - Guilherme Satler Macedo   || RM 563330
 ### - Laura Sousa Barreto       || RM 561965
 ### - Matheus Freitas Vieira    || RM 566198
-### - Natalia Camargo de Souza  || RM 565769
+### - Natália Camargo de Souza  || RM 565769
 --------------------------------------------
  
 AZURE FIWARE - docker
@@ -72,6 +72,7 @@ void initWiFi() {
     Serial.println("Aguarde");
     reconectWiFi();
 }
+
 
 //Iniciar o MQTT
 void initMQTT() {
@@ -227,7 +228,7 @@ void reconnectMQTT() {
 void handleLuminosity() {
     const int LuxPin = 34;
     int sensorValue = analogRead(LuxPin);
-    //Serial.println("Valor do Sensor de lux: " + String(sensorValue));
+    //Serial.println("Valor do Sensor de lux: " + String(sensorValue))
     if (isnan(sensorValue)){
       Serial.print("Falha ao ler dados do sensor de luz.");
     }
