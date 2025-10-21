@@ -73,6 +73,7 @@ void initWiFi() {
     reconectWiFi();
 }
 
+
 //Iniciar o MQTT
 void initMQTT() {
     MQTT.setServer(BROKER_MQTT, BROKER_PORT);
@@ -227,7 +228,7 @@ void reconnectMQTT() {
 void handleLuminosity() {
     const int LuxPin = 34;
     int sensorValue = analogRead(LuxPin);
-    //Serial.println("Valor do Sensor de lux: " + String(sensorValue));
+    //Serial.println("Valor do Sensor de lux: " + String(sensorValue))
     if (isnan(sensorValue)){
       Serial.print("Falha ao ler dados do sensor de luz.");
     }
