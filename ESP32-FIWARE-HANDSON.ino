@@ -58,10 +58,12 @@ WiFiClient espClient;
 PubSubClient MQTT(espClient);
 char EstadoSaida = '0';
 
+//Monitor Serial
 void initSerial() {
     Serial.begin(115200);
 }
 
+//Iniciar o wifi
 void initWiFi() {
     delay(10);
     Serial.println("------Conexao WI-FI------");
@@ -71,6 +73,7 @@ void initWiFi() {
     reconectWiFi();
 }
 
+//Iniciar o MQTT
 void initMQTT() {
     MQTT.setServer(BROKER_MQTT, BROKER_PORT);
     MQTT.setCallback(mqtt_callback);
